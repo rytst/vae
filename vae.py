@@ -137,7 +137,6 @@ def main():
 
         epoch_history.append(epoch+1)
         losses.append(loss_avg)
-        print(loss_avg)
 
 
 
