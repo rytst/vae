@@ -9,7 +9,6 @@ using Images
 using Logging: with_logger
 using MLDatasets
 using ProgressMeter: Progress, next!
-using TensorBoardLogger: TBLogger, tb_overwrite
 using Random
 
 # load MNIST images and return loader
