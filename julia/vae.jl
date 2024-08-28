@@ -83,13 +83,7 @@ function train(; kws...)
     args = Args(; kws...)
     args.seed > 0 && Random.seed!(args.seed)
 
-    if args.use_gpu
-        device = Flux.get_device()
-    else
-        device = Flux.get_device("CPU")
-    end
-
-    @info "Training on $device"
+    device = Flux.get_device("CPU")
 
     # load MNIST images
     loader = get_data(args.batch_size)
@@ -123,7 +117,7 @@ function train(; kws...)
             loss, (grad_enc, grad_dec) = Flux.withgradient(encoder, decoder) do enc, dec
                 model_loss(enc, dec, x_dev)
             end
-    
+
             Flux.update!(opt_enc, encoder, grad_enc)
             Flux.update!(opt_dec, decoder, grad_dec)
             # progress meter
@@ -145,11 +139,11 @@ function train(; kws...)
         filepath = joinpath(args[:save_path], "checkpoint.jld2") 
         JLD2.save(filepath, "encoder", Flux.state(encoder),
                             "decoder", Flux.state(decoder),
-                            "args", args)                            
+                            "args", args)
         @info "Model saved: $(filepath)"
     end
 end
 
-if abspath(PROGRAM_FILE) == @__FILE__ 
+if abspath(PROGRAM_FILE) == @__FILE__
     train()
 end
