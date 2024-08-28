@@ -1,5 +1,4 @@
 using JLD2
-# using CUDA, cuDNN  # uncomment one of these if you use GPU
 using DrWatson: struct2dict
 using Flux
 using Optimisers: AdamW
