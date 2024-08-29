@@ -68,7 +68,7 @@ Base.@kwdef mutable struct Args
     λ = 1e-4                # regularization paramater
     batch_size = 128        # batch size
     sample_size = 10        # sampling size for output    
-    epochs = 20             # number of epochs
+    epochs = 30             # number of epochs
     seed = 0                # random seed
     use_gpu = true              # use GPU
     input_dim = 28^2        # image size
@@ -112,7 +112,7 @@ function train(; kws...)
         @info "Epoch $(epoch)"
         progress = Progress(length(loader))
 
-        for (x, _) in loader 
+        for (x, _) in loader
             x_dev = x |> device
             loss, (grad_enc, grad_dec) = Flux.withgradient(encoder, decoder) do enc, dec
                 model_loss(enc, dec, x_dev)
@@ -121,22 +121,23 @@ function train(; kws...)
             Flux.update!(opt_enc, encoder, grad_enc)
             Flux.update!(opt_dec, decoder, grad_dec)
             # progress meter
-            next!(progress; showvalues=[(:loss, loss)]) 
+            next!(progress; showvalues=[(:loss, loss)])
 
             train_steps += 1
         end
-        # save image
-        _, _, rec_original = reconstuct(encoder, decoder, original)
-        rec_original = sigmoid.(rec_original)
-        image = convert_to_image(rec_original, args.sample_size)
-        image_path = joinpath(args.save_path, "epoch_$(epoch).png")
-        save(image_path, image)
-        @info "Image saved: $(image_path)"
-    end
+	end
+
+    # generate and save image
+    _, _, rec_original = reconstuct(encoder, decoder, original)
+    rec_original = sigmoid.(rec_original)
+    image = convert_to_image(rec_original, args.sample_size)
+    image_path = joinpath(args.save_path, "output.png")
+    save(image_path, image)
+    @info "Image saved: $(image_path)"
 
     # save model
     let encoder = cpu(encoder), decoder = cpu(decoder), args=struct2dict(args)
-        filepath = joinpath(args[:save_path], "checkpoint.jld2") 
+        filepath = joinpath(args[:save_path], "checkpoint.jld2")
         JLD2.save(filepath, "encoder", Flux.state(encoder),
                             "decoder", Flux.state(decoder),
                             "args", args)
